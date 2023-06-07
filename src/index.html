@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>oi</h1>
+    <script>
+        async function fazerFetch() {
+  const url = 'http://localhost:4000/user/signup';  
+
+  const dados = { firstName:"douglas", lastName:"rodrigues", email:"tesasfasasfte@teste.com", password: "123456" };
+
+  const opcoesFetch = {
+    method: 'POST',  
+    headers: {
+      'Content-Type': 'application/json'  
+    },
+    body: JSON.stringify(dados) 
+  };
+
+  try {
+    const resposta = await fetch(url, opcoesFetch);
+    const resultado = await resposta.json();
+    console.log(resultado);  
+  } catch (erro) {
+    console.error('Ocorreu um erro:', erro);
+  }
+}
+
+fazerFetch();
+    </script>
+    
+</body>
+</html>
