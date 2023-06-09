@@ -5,7 +5,7 @@ import { userModel } from '../types'
 export default {
     async generateUserId(): Promise<string[]> {
         let ids: string[] = [`${uuid()}${Date.now()}`, `${uuid()}${Date.now()}`]
-        console.log('---------------'+ ids)
+        
         let privateId: userModel | null = await User.findByPk(ids[0])
         let publicId: userModel[] = await User.findAll({ where: { public_id: ids[1] } })
 

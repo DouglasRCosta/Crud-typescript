@@ -3,6 +3,8 @@ import assert from 'node:assert'
 import db from '../database/mysql/index'
 
 let url = 'http://localhost:4000/';
+let _server = {}
+let _token = ''
 
 async function makeRequestGET(url: string) {
     const request = await fetch(url)
@@ -10,14 +12,23 @@ async function makeRequestGET(url: string) {
     return request.json()
 }
 async function makeRequestPOST(url: string, data: {}) {
-    const request = await fetch(url, { method: 'POST', body: JSON.stringify(data) })
+    const request = await fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Cookie': `jwt=${_token}`
+        },
+        body: JSON.stringify(data)
+    })
 
     return request.json()
 }
-
+/* ***********
+*
+*
+*/
 describe('API tests', async () => {
-    let _server = {}
-
+ 
     before(async () => {
         _server = (await import('../server'))
     })
@@ -31,22 +42,26 @@ describe('API tests', async () => {
         const request = await makeRequestPOST(`${url}user/signup`, {})
 
         assert.notDeepEqual(request.error.length, 0)
-
-
     })
-    it('<<<<<<<<<<<<- deve criar um user  ', async () => {
-        const request = await makeRequestPOST(`${url}user/signup`, { firstName:"douglas", lastName:"rodrigues", email:"teste@teste.com", password: "123456" })
-        console.log(JSON.stringify(request))
-        assert.notDeepEqual(request.error.length, 0)
-
-
+    it('<<<<<<<<<<<<- deve criar um user e retornar um token  ', async () => {
+        const request = await makeRequestPOST(`${url}user/signup`, { firstName: "douglas", lastName: "rodrigues", email: "teste@teste.com", password: "123456" })
+        _token = request.token
+   
+        assert.deepEqual(('token' in request), true)
+    })
+    it('<<<<<<<<<<<<- deve logar e retornar um token  ', async () => {
+        const request = await makeRequestPOST(`${url}user/signin`, {email: "teste@teste.com",  password: "123456" })
+        _token = request.token
+   
+        assert.deepEqual(('token' in request), true)
     })
 
 })
-
+/* ***********
+*
+*
+*/
 describe('database', async () => {
-
-
     before(async () => {
 
     })
@@ -55,7 +70,6 @@ describe('database', async () => {
         let info
         try {
             await db.authenticate();
-            console.log('Connection has been established successfully.');
             info = true;
         } catch (error) {
             console.error('Unable to connect to the database:', error);

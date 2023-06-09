@@ -12,8 +12,7 @@ const User = db.define<userModel>("user", {
     }, public_id: {
         type: Sequelize.DataTypes.STRING,
         allowNull: false,
-        unique: true,
-        primaryKey: true,
+        unique: true
     },
     firstName: {
         type: Sequelize.DataTypes.STRING,
