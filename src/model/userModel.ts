@@ -35,6 +35,8 @@ const User = db.define<userModel>("user", {
         type: Sequelize.DataTypes.STRING,
         allowNull: true
     }
+},{
+    tableName:'users'
 })
 
 User.sync()

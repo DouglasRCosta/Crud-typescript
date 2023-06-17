@@ -9,3 +9,16 @@ export interface userModel extends Model {
     password: string,
     token: string
 }
+export interface postModel extends Model {
+    post_id: string,
+    title: string,
+    content: string,
+    likes:number,
+    user: string
+}
+export interface likeModel extends Model{
+    id:number,
+    user:string,
+    post:number
+}
+

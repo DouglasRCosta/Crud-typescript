@@ -21,7 +21,7 @@ export default {
 
             return res.json({ firstName: result.firstName, lastName: result.lastName });
         } catch (err) {
-            console.log(err)
+            console.log('<catch getUser userController>'+err)
             res.status(500).json({ err: 'Ocorreu um erro interno' })
         }
 
@@ -45,7 +45,7 @@ export default {
                 email: result.email,
             });
         } catch (err) {
-            console.log(err)
+            console.log('<catch me userController>'+err)
             res.status(500).json({ err: 'Ocorreu um erro interno' })
         }
 
@@ -68,7 +68,7 @@ export default {
             const token = req.cookies.jwt
 
             //verificar se existe User pelo token
-            const result = await User.findOne({ where: { token } })
+            const result = await User.findOne({ attributes: ['private_id', 'firstName', 'lastName', 'email', 'password'], where: { token } })
             if (!result) {
                 return res.status(404).json({ error: 'Usuário não encontrado.' })
             }
@@ -96,7 +96,7 @@ export default {
             await result.save()
             res.json(json)
         } catch (err) {
-            console.error(err)
+            console.error('<catch editme userController>'+err)
             res.status(500).json({ err: 'Ocorreu um erro interno' })
         }
     },
@@ -111,7 +111,7 @@ export default {
             const { email, password }: { email: string, password: string } = req.body
 
             // verifica se estão presente
-            if (!token ||!email || !password) {
+            if (!token || !email || !password) {
                 res.status(400).json({ error: 'Dados não enviados corretamente.' })
                 return
             }
@@ -122,15 +122,16 @@ export default {
                 return
             }
             // verifica se email e password são iguais  :: compararHash usa bcrypt
-            if(email == result?.email && await hashPass.compararHash(password, result.password)){
+            if (email == result?.email && await hashPass.compararHash(password, result.password)) {
                 await result.destroy()
+                res.status(200).json({ delete: true, msg: "Usuário deletado com sucesso." })
                 return
             }
-            res.status(422).json({error:'Dados fornecidos incorretos'})
+            res.status(422).json({ error: 'Dados fornecidos incorretos' })
             return
 
         } catch (err) {
-            console.error(err)
+            console.error('<catch deleteUser userController>'+err)
             res.status(500).json({ err: 'Ocorreu um erro interno' })
         }
     }

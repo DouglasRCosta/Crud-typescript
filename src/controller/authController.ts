@@ -54,15 +54,29 @@ export default {
 
             const token = save.token;
             const expiryDate = new Date(Date.now() + 60 * 100000000);
+            
+
             res.cookie("jwt", token, {
                 httpOnly: true,
                 maxAge: 60 * 100000000,
                 expires: expiryDate,
             });
+            res.cookie("p_id", save.public_id, {
+                httpOnly: true,
+                maxAge: 60 * 100000000,
+                expires: expiryDate,
+            });
+            res.cookie("U_name", save.firstName, {
+                httpOnly: true,
+                maxAge: 60 * 100000000,
+                expires: expiryDate,
+            });
+
+
             res.json({ token })
 
         } catch (err) {
-            console.log(err)
+            console.log('<catch signUp authController>'+ err)
             res.status(500).json({ err: 'Ocorreu um erro interno' })
         }
 
@@ -91,19 +105,29 @@ export default {
             result.token = tokenGenerate.generateToken()
             await result.save()
 
-            // token-----------------------------------
-            let token = result.token;
+            // cookies-----------------------------------
+           
             const expiryDate = new Date(Date.now() + 60 * 100000000);
-            res.cookie("jwt", token, {
+            res.cookie("jwt", result.token, {
                 httpOnly: true,
                 maxAge: 60 * 100000000,
                 expires: expiryDate,
             });
-            return res.json({ token });
+            res.cookie("p_id", result.public_id, {
+                httpOnly: true,
+                maxAge: 60 * 100000000,
+                expires: expiryDate,
+            });
+            res.cookie("U_name", result.firstName, {
+                httpOnly: true,
+                maxAge: 60 * 100000000,
+                expires: expiryDate,
+            });
+            return res.json({ token:result.token });
 
 
         } catch (err) {
-            console.log(err)
+            console.log('<catch signIn authController>'+err)
             res.status(500).json({ err: 'Ocorreu um erro interno' })
         }
 
