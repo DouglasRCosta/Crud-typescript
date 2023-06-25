@@ -9,6 +9,20 @@ import Post from './model/postModel'
 import Like from './model/likeModel'
 dotenv.config()
 const app = express()
+// inicializar db
+const test = async () => {
+  try {
+    await db.authenticate();
+    await User.sync()
+    await Post.sync()
+    await Like.sync()
+  } catch (error) {
+    console.error('Unable to connect to the database:', error);
+  }
+}
+initialize()
+test()
+
 
 app.use(cors())
 
@@ -33,17 +47,6 @@ app.get('/ping', (req: Request, res: Response) => {
   res.json({ pong: true })
 
 })
-const test = async () => {
-  try {
-    await db.authenticate();
-    await User.sync()
-    await Post.sync()
-    await Like.sync()
-  } catch (error) {
-    console.error('Unable to connect to the database:', error);
-  }
-}
-test()
 
 app.use((req: Request, res: Response) => {
   res.status(404)
