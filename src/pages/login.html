@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Log In</title>
+  <link rel="stylesheet" href="/css">
+
+</head>
+
+<body>
+
+  <header>
+    <div class="container">
+      <nav>
+        <div id="left">
+          <h1><a href="/">Lorem ipsum</a></h1>
+        </div>
+        <div id="right">
+          <div class="btn"><a href="/cadastro">Cadastrar</a></div>
+        </div>
+      </nav>
+    </div>
+
+  </header>
+  <section>
+    <div class="container">
+      <div class="form_cadastro">
+        <form method="post" action="/user/signup">
+          <h1>Log In</h1>
+          <label for="email">Email:</label><br>
+          <input class="padrao" id="email" placeholder="Digite" type="email" required><br>
+          <label for="pass">Senha:</label><br>
+          <input class="padrao" id="pass" placeholder="Digite" type="password" required><br>
+          <button> Log In</button>
+        </form>
+      </div>
+
+    </div>
+  </section>
+  <script>
+    function getCookie(name) {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.startsWith(name + '=')) {
+          return cookie.substring(name.length + 1);
+        }
+      }
+      return null;
+    }
+
+    const jwtCookie = getCookie('jwt');
+    if (jwtCookie) {
+      console.log('Valor do cookie "jwt":', jwtCookie);
+      window.location.href = '/'
+    } else {
+      console.log('Cookie "jwt" não encontrado.');
+    }
+
+    let emailField = document.getElementById('email');
+    let passField = document.getElementById('pass');
+    
+    emailField.addEventListener('input', validarCampo);
+    passField.addEventListener('input', validarCampo);
+
+    function validarCampo(event) {
+      let campo = event.target;
+      if (campo.value === '' || campo.value.length < 3) {
+        campo.classList.add('vazio');
+      } else {
+        campo.classList.remove('vazio');
+      }
+    }
+    let loginBtn = document.querySelector('button');
+    loginBtn.addEventListener('click', validarSenhas);
+    
+    async function validarSenhas(event) {
+      event.preventDefault();
+      let email = emailField.value;
+      let senha1 = passField.value;
+
+
+
+      // Verifica se as senhas têm menos de 6 dígitos
+      if (senha1.length < 6) {
+        passField.classList.add('vazio');
+        alert("As senhas devem ter pelo menos 6 caracteres.");
+        return;
+      }
+
+      if (email.length < 3) {
+        emailField.classList.add('vazio')
+        alert("email  preenchido incorretamente.");
+        return;
+      }
+      let data = {
+        email,
+        password: senha1
+      }
+      try {
+        let result = await fetch('/user/signin', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        })
+        let json = await result.json()
+        if (json.err) {
+          // Lógica para lidar com o erro 409
+          alert('Conflito detectado!  ' + json.err);
+          return
+        }
+      } catch (error) {
+        console.error(error)
+      }
+      setTimeout(() => {
+        window.location.href = '/'
+      }, [1000])
+
+
+    }
+  </script>
+</body>
+
+</html>

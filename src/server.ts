@@ -18,7 +18,16 @@ app.use(express.json())
 
 app.use('/', routes)
 app.get('/', (req: Request, res: Response) => {
-  res.sendFile(__dirname + '/index.html');
+  res.sendFile(__dirname + '/pages/index.html');
+});
+app.get('/cadastro', (req: Request, res: Response) => {
+  res.sendFile(__dirname + '/pages/cadastro.html');
+});
+app.get('/login', (req: Request, res: Response) => {
+  res.sendFile(__dirname + '/pages/login.html');
+});
+app.get('/css', (req: Request, res: Response) => {
+  res.sendFile(__dirname + '/pages/style.css');
 });
 app.get('/ping', (req: Request, res: Response) => {
   res.json({ pong: true })

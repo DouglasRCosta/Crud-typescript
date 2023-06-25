@@ -24,7 +24,7 @@ export default {
                     res.json(resultByid)
                     return
                 }
-                res.status(404).json({ error: 'post não encontrado!' })
+                res.status(404).json({ err: 'post não encontrado!' })
                 return
             }
 
@@ -43,7 +43,7 @@ export default {
 
                 const resultByPage = await Post.findAll({ offset: pageInt * limit, limit, order: [['createdAt', 'DESC']] })
                 if (resultByPage.length < 1) {
-                    res.status(404).json({ erro: 'sem dados' });
+                    res.status(404).json({ err: 'sem dados' });
                     return
                 }
                 res.json(resultByPage)

@@ -57,17 +57,17 @@ export default {
             
 
             res.cookie("jwt", token, {
-                httpOnly: true,
+                httpOnly: false,
                 maxAge: 60 * 100000000,
                 expires: expiryDate,
             });
             res.cookie("p_id", save.public_id, {
-                httpOnly: true,
+                httpOnly: false,
                 maxAge: 60 * 100000000,
                 expires: expiryDate,
             });
             res.cookie("U_name", save.firstName, {
-                httpOnly: true,
+                httpOnly: false,
                 maxAge: 60 * 100000000,
                 expires: expiryDate,
             });
@@ -108,22 +108,24 @@ export default {
             // cookies-----------------------------------
            
             const expiryDate = new Date(Date.now() + 60 * 100000000);
+
+             res.cookie("p_id", result.public_id, {
+                httpOnly: false,
+                maxAge: 60 * 100000000,
+                expires: expiryDate,
+            });
             res.cookie("jwt", result.token, {
-                httpOnly: true,
+                httpOnly: false,
                 maxAge: 60 * 100000000,
                 expires: expiryDate,
             });
-            res.cookie("p_id", result.public_id, {
-                httpOnly: true,
-                maxAge: 60 * 100000000,
-                expires: expiryDate,
-            });
+           
             res.cookie("U_name", result.firstName, {
-                httpOnly: true,
+                httpOnly: false,
                 maxAge: 60 * 100000000,
                 expires: expiryDate,
             });
-            return res.json({ token:result.token });
+            return res.json({ token:result.token,U_name:result.firstName,p_id:result.public_id });
 
 
         } catch (err) {

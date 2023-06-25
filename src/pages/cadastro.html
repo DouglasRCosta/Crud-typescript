@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro
+    </title>
+    <link rel="stylesheet" href="/css">
+
+</head>
+
+<body>
+    <header>
+        <div class="container">
+            <nav>
+                <div id="left">
+                    <h1><a href="/">Lorem ipsum</a></h1>
+                </div>
+                <div id="right">
+                    <div class="btn"><a href="/login">Log In</a></div>
+                </div>
+            </nav>
+        </div>
+    </header>
+    <section>
+        <div class="container">
+            <div class="form_cadastro">
+                <form method="post" action="/user/signup">
+                    <h1>Cadastro</h1>
+                    <label for="first">Primeiro Nome:</label><br>
+                    <input class="padrao" id="first" placeholder="Digite" type="text" required><br>
+                    <label for="last">Sobrenome:</label><br>
+                    <input class="padrao" id="last" placeholder="Digite" type="text" required><br>
+                    <label for="email">Email:</label><br>
+                    <input class="padrao" id="email" placeholder="Digite" type="email" required><br>
+                    <label for="pass">Senha:</label><br>
+                    <input class="padrao" id="pass" placeholder="Digite" type="password" required><br>
+                    <label for="pass">confirme a senha:</label><br>
+                    <input class="padrao" id="pass2" type="password" placeholder="Digite" required><br>
+                    <button> Cadastrar</button>
+                </form>
+            </div>
+
+        </div>
+    </section>
+
+
+
+
+
+
+    <script>
+        function getCookie(name) {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.startsWith(name + '=')) {
+                    return cookie.substring(name.length + 1);
+                }
+            }
+            return null;
+        }
+
+        const jwtCookie = getCookie('jwt');
+        if (jwtCookie) {
+            console.log('Valor do cookie "jwt":', jwtCookie);
+            window.location.href = '/'
+        } else {
+            console.log('Cookie "jwt" não encontrado.');
+        }
+
+        // Obtém referências para os elementos do formulário
+        let firstField = document.getElementById('first');
+        let lastField = document.getElementById('last');
+        let emailField = document.getElementById('email');
+        let passField = document.getElementById('pass');
+        let pass2Field = document.getElementById('pass2');
+
+
+        // Adiciona um evento de clique aos campos
+        firstField.addEventListener('input', validarCampo);
+        lastField.addEventListener('input', validarCampo);
+        emailField.addEventListener('input', validarCampo);
+        passField.addEventListener('input', validarCampo);
+        pass2Field.addEventListener('input', validarCampo);
+
+        // Função para validar o campo quando clicado
+        function validarCampo(event) {
+
+            let campo = event.target;
+
+            // Verifica se o campo está vazio ou tem menos de três dígitos
+            if (campo.value === '' || campo.value.length < 3) {
+                campo.classList.add('vazio');
+            } else {
+                campo.classList.remove('vazio');
+            }
+        }
+
+
+        // Adiciona um evento de clique ao botão de cadastro
+        let cadastrarBtn = document.querySelector('button');
+        cadastrarBtn.addEventListener('click', validarSenhas);
+
+        // Função para validar as senhas
+        async function validarSenhas(event) {
+            event.preventDefault(); // Evita que o formulário seja enviado
+            let first = firstField.value;
+            let last = lastField.value;
+            let email = emailField.value;
+            let senha1 = passField.value;
+            let senha2 = pass2Field.value;
+
+            // Verifica se as senhas são diferentes
+            if (senha1 !== senha2) {
+                passField.classList.add('vazio');
+                pass2Field.classList.add('vazio');
+                alert("As senhas não coincidem.");
+                return;
+            }
+
+            // Verifica se as senhas têm menos de 6 dígitos
+            if (senha1.length < 6 || senha2.length < 6) {
+                passField.classList.add('vazio');
+                pass2Field.classList.add('vazio');
+                alert("As senhas devem ter pelo menos 6 caracteres.");
+                return;
+            }
+
+            if (first.length < 3 || last.length < 3 || email.length < 3) {
+                alert("Os campos preenchido incorretamente.");
+                return;
+            }
+            let data = {
+                firstName: first,
+                lastName: last,
+                email,
+                password: senha1
+            }
+            try {
+                let result = await fetch('/user/signup', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                })
+                let json = await result.json()
+                if (json.err) {
+                    // Lógica para lidar com o erro 409
+                    alert('Conflito detectado!' + json.err);
+                    return
+                }
+            } catch (error) {
+                console.error(error)
+            }
+            setTimeout(() => {
+                window.location.href = '/'
+            }, [1000])
+
+
+        }
+    </script>
+</body>
+
+</html>

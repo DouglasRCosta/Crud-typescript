@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Home</title>
+  <link rel="stylesheet" href="/css">
+  <style>
+
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="container">
+      <nav>
+        <div id="left">
+          <h1><a href="/">Lorem ipsum</a></h1>
+        </div>
+        <div id="right">
+        </div>
+      </nav>
+    </div>
+  </header>
+  <section id="posts_section">
+    <div class="container">
+      <div class="posts_div">
+        <div class="create_post">
+          <fieldset>
+            <legend>Criar Post</legend>
+            <form action="">
+              <label for="title">Título</label><br>
+              <input id="title" placeholder="Título!" type="text" required><br>
+              <label for="content">Texto</label><br />
+              <textarea placeholder="Digite o texto aqui !!" name="" id="content"></textarea> <span
+                id="letras">300</span><br />
+              <button id="postar_btn">postar</button>
+            </form>
+          </fieldset>
+        </div>
+        <div style="display: none;" class="post">
+          <fieldset>
+            <legend class="post_title">lorem Ipsum</legend>
+            <br />
+            <p class="content">Lorem ipsum dolor, sit amet consectetur adipisicing elit. Voluptates exercitationem
+              delectus eos tempora
+              nesciunt consequatur. Totam eaque possimus nisi, ex exercitationem nemo cupiditate. Repudiandae ipsum,
+              accusamus tempore error necessitatibus sequi?</p>
+            <br />
+            <p><button class="like_btn">👍</button><span class="likes"> 0</span></p>
+
+          </fieldset>
+        </div>
+      </div>
+    </div>
+  </section>
+  <script>
+    let name = ''
+    let token = ''
+    let userID = ''
+    let pages = 1
+    const right = document.getElementById('right')
+    const posts = document.getElementsByClassName('posts_div')[0]
+    const cloneNode = document.getElementsByClassName('post')[0].cloneNode(true)
+
+    // carrega os primeiros post quando entra na pagina
+    window.addEventListener("load", function () {
+      // Função a ser executada quando a página é carregada
+      getPosts(pages)
+    });
+
+    // cria os posts
+    async function getPosts(page) {
+      try {
+        let result = await fetch(`/post?page=${page}`)
+        let json = await result.json()
+
+        json.map((ele, ind) => {
+
+          let postTemp = document.getElementsByClassName('post')[0].cloneNode(true)
+          postTemp.setAttribute('data-key', ele.post_id)
+          postTemp.setAttribute('style', 'display:block; ')
+          postTemp.querySelector('.post_title').innerHTML = ele.title
+          postTemp.querySelector('.content').innerHTML = ele.content
+          postTemp.querySelector('.likes').innerHTML = ele.likes
+          postTemp.querySelector('.like_btn').setAttribute('data-key', ele.post_id)
+          postTemp.querySelector('.like_btn').addEventListener('click', like)
+
+          if (ele.user == userID) {
+            postTemp.innerHTML += `<p><button data-key="${ele.post_id}" class="delete_btn">Deletar Post 🗑️</button></p>`
+          }
+
+          posts.append(postTemp)
+        })
+        pages++
+
+      } catch (error) {
+        console.log('aqui')
+        getPosts = null
+        window.removeEventListener("scroll", scrollHandler)
+      }
+
+      document.querySelectorAll('.delete_btn').forEach((e) => {
+        e.addEventListener('click', destroy)
+      })
+    }
+    // funcao carrega mais post quando scroll bate no final
+    function scrollHandler() {
+      if ((window.innerHeight + window.pageYOffset) >= document.body.offsetHeight - 1) {
+        console.log('aqui')
+        getPosts(pages)
+      }
+    }
+
+    // atribui os cookies a variaveis
+    function getCookie(arr) {
+
+      window.addEventListener("scroll", scrollHandler);
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.startsWith(arr[0] + '=')) {
+          token = cookie.substring(arr[0].length + 1);
+        }
+        if (cookie.startsWith(arr[1] + '=')) {
+          name = cookie.substring(arr[1].length + 1);
+        }
+        if (cookie.startsWith(arr[2] + '=')) {
+          userID = cookie.substring(arr[2].length + 1);
+        }
+      }
+      return null;
+    }
+
+    getCookie(['jwt', "U_name", 'p_id']);
+    if (token) {
+      right.innerHTML += `<p>${name}</p>
+      <div class="btn" onclick=deslogar()> Deslogar </div>
+       `
+
+      posts.append(``)
+    } else {
+      right.innerHTML = `
+          <div class="btn"><a href="/login">Log In</a></div>
+          <div class="btn"><a href="/cadastro">Cadastrar</a></div>`
+    }
+
+
+    let postTitle = document.getElementById('title');
+    let content = document.getElementById('content');
+
+    postTitle.addEventListener('input', validarCampo);
+    content.addEventListener('input', validarCampo);
+
+    // verifica a presenca de dados nos campos
+    function validarCampo(event) {
+
+      let campo = event.target;
+      if (campo.value === '' || campo.value.length < 3) {
+        campo.classList.add('vazio');
+      } else {
+        campo.classList.remove('vazio');
+      }
+      let contentVa = content.value
+      let likes = document.getElementById('letras');
+      likes.innerHTML = 301 - contentVa.length;
+
+      if (contentVa.length > 300) {
+        content.value = contentVa.toString().slice(0, 300)
+      }
+    }
+
+    let postarBtn = document.getElementById('postar_btn')
+    postarBtn.addEventListener('click', postar)
+
+    // deleta o post
+    async function destroy(e) {
+      e.preventDefault()
+      let elemento = e.target
+      let postId = elemento.getAttribute('data-key')
+
+      let password = prompt(' Atenção está ação não tem retorno !!! deixe o campo vazio para cancelar. \n Digite a Senha:\n ')
+
+
+      if (!password) {
+        return
+      }
+
+      let result = await fetch('/post', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ postId, password })
+      })
+
+      let json = await result.json()
+
+      if (json.err) {
+        alert(json.err)
+      }
+      if(json.deleted){
+        alert('post deletado com sucesso!')
+        window.location.href= '/'
+      }
+    }
+
+    //executa fetch  para postar
+    async function postar(e) {
+      e.preventDefault()
+      let contentVa = content.value
+      let postTitleValue = postTitle.value
+      let post = {
+        title: postTitleValue,
+        content: contentVa
+      }
+      if (!(contentVa && postTitle)) {
+        alert('Preencha os campos corretamente')
+        return
+      }
+      let result = await fetch('/post', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(post)
+      })
+      let json = await result.json()
+      if (json.err) {
+        alert(result)
+      }
+      window.location.href = '/'
+
+    }
+
+    //funcao de like o timeout serve para cancelar a acao caso seja clicado novamente
+    let timeoutId = null
+    async function like(e) {
+
+      e.preventDefault()
+      let elemento = e.target
+      let postId = elemento.getAttribute('data-key')
+
+
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+        console.log('cancelado')
+        timeoutId = null
+        return
+      }
+
+      timeoutId = setTimeout(async () => {
+        let result = await fetch('/post/like', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: postId })
+        })
+
+        let json = await result.json()
+
+        timeoutId = null
+      }, [3000])
+
+    }
+
+    // limpar os cookies de vai para  /
+    function deslogar() {
+      var cookies = document.cookie.split(";");
+
+      for (var i = 0; i < cookies.length; i++) {
+        var cookie = cookies[i];
+        var igualPos = cookie.indexOf("=");
+        var nome = igualPos > -1 ? cookie.substr(0, igualPos) : cookie;
+        document.cookie = nome + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
+      }
+      setTimeout(() => {
+        window.location.href = '/'
+      }, [1000])
+
+    }
+  </script>
+
+</body>
+
+</html>
